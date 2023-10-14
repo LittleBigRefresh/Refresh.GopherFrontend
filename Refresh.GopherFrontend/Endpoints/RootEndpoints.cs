@@ -17,17 +17,17 @@ public class RootEndpoints : EndpointGroup
         List<GophermapItem> map = new List<GophermapItem>
         {
             new GophermapMessage($"Welcome to the {apiService.Instance.InstanceName} Gopher Frontend!"),
-            new GophermapMessage(apiService.Instance.InstanceDescription),
+            new GophermapMessage("    " + apiService.Instance.InstanceDescription),
             new GophermapMessage(""),
             new GophermapLink("Server Statistics", config, "/statistics"),
             new GophermapMessage(""),
         };
 
-        map.Add(new GophermapMessage("===== ANNOUNCEMENTS ====="));
+        map.Add(new GophermapMessage("=== ANNOUNCEMENTS ==="));
         foreach (RefreshAnnouncement announcement in apiService.Instance.Announcements)
         {
-            map.Add(new GophermapMessage(announcement.Title + ':'));
-            map.Add(new GophermapMessage(announcement.Text));
+            map.Add(new GophermapMessage($"*** {announcement.Title} ***"));
+            map.Add(new GophermapMessage("    " + announcement.Text));
         }
 
         return map;

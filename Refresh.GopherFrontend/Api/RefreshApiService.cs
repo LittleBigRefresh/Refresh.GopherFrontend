@@ -40,4 +40,6 @@ public class RefreshApiService : EndpointService
 
         return result.Data;
     }
+
+    public RefreshStatistics GetStatistics() => GetData<RefreshStatistics>("statistics");
 }
