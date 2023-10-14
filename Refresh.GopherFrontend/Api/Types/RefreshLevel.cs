@@ -1,11 +1,11 @@
 namespace Refresh.GopherFrontend.Api.Types;
 
-#nullable disable
-
 public class RefreshLevel
 {
     public uint LevelId { get; set; }
-    public object Publisher { get; set; }
+    public RefreshUser? Publisher { get; set; }
+    
+#nullable disable
     
     public string Title { get; set; }
     public string Description { get; set; }

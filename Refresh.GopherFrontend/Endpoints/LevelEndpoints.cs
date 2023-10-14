@@ -18,7 +18,7 @@ public class LevelEndpoints : EndpointGroup
         List<GophermapItem> map = new()
         {
             new GophermapMessage("Level Categories"),
-            new GophermapMessage("")
+            new GophermapMessage(""),
         };
         
         foreach (RefreshCategory category in categories.Items)
@@ -28,7 +28,6 @@ public class LevelEndpoints : EndpointGroup
             
             map.Add(new GophermapLink(category.Name, config, $"/levels/{category.ApiRoute}/1"));
             map.Add(new GophermapMessage(category.Description));
-            map.Add(new GophermapMessage(""));
         }
 
         return map;
@@ -37,7 +36,7 @@ public class LevelEndpoints : EndpointGroup
     [GopherEndpoint("/levels/{route}/{page}")]
     public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page)
     {
-        const int pageSize = 20;
+        const int pageSize = 10;
         
         ApiList<RefreshLevel> levels = apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize);
         
@@ -46,7 +45,6 @@ public class LevelEndpoints : EndpointGroup
         List<GophermapItem> map = new()
         {
             new GophermapMessage($"{route} Levels"),
-            new GophermapLink("Return to Categories", config, "/levels"),
             new GophermapMessage(""),
         };
 
@@ -64,6 +62,29 @@ public class LevelEndpoints : EndpointGroup
         
         if(page != maxPage)
             map.Add(new GophermapLink("Next Page", config, $"/levels/{route}/{page + 1}"));
+
+        return map;
+    }
+
+    [GopherEndpoint("/level/{id}")]
+    public List<GophermapItem> GetLevel(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
+    {
+        RefreshLevel level = apiService.GetLevel(id);
+        List<GophermapItem> map = new()
+        {
+            new GophermapMessage(level.Title),
+            new GophermapMessage("    " + level.Description),
+        };
+
+        if (level.Publisher != null)
+        {
+            map.Add(new GophermapMessage($"Published at {level.PublishDate} by {level.Publisher.Username}"));
+            map.Add(new GophermapLink("View Publisher's Profile", config, "/user/" + level.Publisher.Username));
+        }
+        else
+        {
+            map.Add(new GophermapMessage($"Published at {level.PublishDate}"));
+        }
 
         return map;
     }
