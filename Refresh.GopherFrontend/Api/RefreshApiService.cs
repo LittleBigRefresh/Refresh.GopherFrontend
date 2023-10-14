@@ -59,4 +59,5 @@ public class RefreshApiService : EndpointService
 
     public RefreshStatistics GetStatistics() => GetData<RefreshStatistics>("statistics");
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
+    public ApiList<RefreshLevel> GetLevelListing(string category) => GetList<RefreshLevel>($"levels/{category}");
 }
