@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Bunkum.Core.Services;
 using NotEnoughLogs;
+using Refresh.GopherFrontend.Api.Types;
 using Refresh.GopherFrontend.Configuration;
 
 namespace Refresh.GopherFrontend.Api;
@@ -8,6 +9,7 @@ namespace Refresh.GopherFrontend.Api;
 public class RefreshApiService : EndpointService
 {
     private readonly HttpClient _client;
+    public readonly RefreshInstance Instance;
 
     public RefreshApiService(GopherFrontendConfig config, Logger logger) : base(logger)
     {
@@ -16,7 +18,7 @@ public class RefreshApiService : EndpointService
             BaseAddress = new Uri(config.RefreshApiUrl)
         };
 
-        Console.WriteLine(GetData<dynamic>("users/name/jvyden420"));
+        this.Instance = GetData<RefreshInstance>("instance");
     }
 
     private TResult GetData<TResult>(string endpoint)
