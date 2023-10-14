@@ -37,23 +37,25 @@ public class LevelEndpoints : EndpointGroup
     [GopherEndpoint("/levels/{route}/{page}")]
     public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page)
     {
-        ApiList<RefreshLevel> levels = apiService.GetLevelListing(route);
+        const int pageSize = 20;
+        
+        ApiList<RefreshLevel> levels = apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize);
+        
+        int maxPage = levels.ListInfo.TotalItems / pageSize + 1;
+        
         List<GophermapItem> map = new()
         {
             new GophermapMessage($"{route} Levels"),
             new GophermapLink("Return to Categories", config, "/levels"),
             new GophermapMessage(""),
         };
-        
+
         foreach (RefreshLevel level in levels.Items)
         {
             map.Add(new GophermapLink(level.Title, config, "/level/" + level.LevelId));
             map.Add(new GophermapMessage(level.Description.TrimEnd()));
         }
 
-        const int pageSize = 20;
-        int maxPage = levels.ListInfo.TotalItems / pageSize + 1;
-        
         map.Add(new GophermapMessage(""));
         map.Add(new GophermapMessage($"You are on page {page}/{maxPage}"));
         

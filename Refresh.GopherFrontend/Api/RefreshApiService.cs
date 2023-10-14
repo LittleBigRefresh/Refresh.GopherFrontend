@@ -45,9 +45,9 @@ public class RefreshApiService : EndpointService
         return result.Data;
     }
 
-    private ApiList<TResult> GetList<TResult>(string endpoint)
+    private ApiList<TResult> GetList<TResult>(string endpoint, int skip = 0, int count = 20)
     {
-        IEnumerable<TResult> items = GetData<IEnumerable<TResult>>(endpoint, out ApiListInformation? listInfo);
+        IEnumerable<TResult> items = GetData<IEnumerable<TResult>>($"{endpoint}?skip={skip}&count{count}", out ApiListInformation? listInfo);
         Debug.Assert(listInfo != null, $"List information was not present on endpoint '/{endpoint}'");
 
         return new ApiList<TResult>
@@ -59,5 +59,5 @@ public class RefreshApiService : EndpointService
 
     public RefreshStatistics GetStatistics() => GetData<RefreshStatistics>("statistics");
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
-    public ApiList<RefreshLevel> GetLevelListing(string category) => GetList<RefreshLevel>($"levels/{category}");
+    public ApiList<RefreshLevel> GetLevelListing(string category, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count);
 }
