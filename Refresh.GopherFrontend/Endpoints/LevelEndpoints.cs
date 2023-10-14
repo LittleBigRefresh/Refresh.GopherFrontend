@@ -50,18 +50,19 @@ public class LevelEndpoints : EndpointGroup
 
         foreach (RefreshLevel level in levels.Items)
         {
-            map.Add(new GophermapLink(level.Title, config, "/level/" + level.LevelId));
-            map.Add(new GophermapMessage(level.Description.TrimEnd()));
+            map.Add(new GophermapLink(level.Title.Length > 0 ? level.Title : "Unnamed Level", config, "/level/" + level.LevelId));
+            if(level.Description.Length > 0)
+                map.Add(new GophermapMessage(level.Description));
         }
 
         map.Add(new GophermapMessage(""));
         map.Add(new GophermapMessage($"You are on page {page}/{maxPage}"));
         
-        if (page > 1)
-            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}/{page - 1}"));
-        
         if(page != maxPage)
             map.Add(new GophermapLink("Next Page", config, $"/levels/{route}/{page + 1}"));
+        
+        if (page > 1)
+            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}/{page - 1}"));
 
         return map;
     }
@@ -72,8 +73,8 @@ public class LevelEndpoints : EndpointGroup
         RefreshLevel level = apiService.GetLevel(id);
         List<GophermapItem> map = new()
         {
-            new GophermapMessage(level.Title),
-            new GophermapMessage("    " + level.Description),
+            new GophermapMessage(level.Title.Length > 0 ? level.Title : "Unnamed Level"),
+            new GophermapMessage(level.Description.Length > 0 ? level.Description : "No description was provided for this level."),
         };
 
         if (level.Publisher != null)
