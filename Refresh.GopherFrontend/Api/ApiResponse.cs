@@ -5,4 +5,5 @@ public class ApiResponse<TData>
     public bool Success { get; set; }
     public TData? Data { get; set; }
     public ApiError? Error { get; set; }
+    public ApiListInformation? ListInfo { get; set; }
 }

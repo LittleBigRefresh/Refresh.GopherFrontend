@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Json;
 using Bunkum.Core.Services;
 using NotEnoughLogs;
@@ -21,7 +22,9 @@ public class RefreshApiService : EndpointService
         this.Instance = GetData<RefreshInstance>("instance");
     }
 
-    private TResult GetData<TResult>(string endpoint)
+    private TResult GetData<TResult>(string endpoint) => this.GetData<TResult>(endpoint, out _);
+
+    private TResult GetData<TResult>(string endpoint, out ApiListInformation? listInfo)
     {
         HttpResponseMessage response = _client.GetAsync(endpoint).Result;
         ApiResponse<TResult>? result = response.Content.ReadFromJsonAsync<ApiResponse<TResult>>().Result;
@@ -38,8 +41,22 @@ public class RefreshApiService : EndpointService
         if (result.Data == null)
             throw new ApiErrorException($"Server sent invalid response for success. Status code was {response.StatusCode}");
 
+        listInfo = result.ListInfo;
         return result.Data;
     }
 
+    private ApiList<TResult> GetList<TResult>(string endpoint)
+    {
+        IEnumerable<TResult> items = GetData<IEnumerable<TResult>>(endpoint, out ApiListInformation? listInfo);
+        Debug.Assert(listInfo != null, $"List information was not present on endpoint '/{endpoint}'");
+
+        return new ApiList<TResult>
+        {
+            Items = items,
+            ListInfo = listInfo
+        };
+    }
+
     public RefreshStatistics GetStatistics() => GetData<RefreshStatistics>("statistics");
+    public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
 }

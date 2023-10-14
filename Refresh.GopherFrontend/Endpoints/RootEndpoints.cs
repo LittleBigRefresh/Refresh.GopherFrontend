@@ -20,6 +20,7 @@ public class RootEndpoints : EndpointGroup
             new GophermapMessage("    " + apiService.Instance.InstanceDescription),
             new GophermapMessage(""),
             new GophermapLink("Server Statistics", config, "/statistics"),
+            new GophermapLink("Levels", config, "/levels"),
             new GophermapMessage(""),
         };
 
