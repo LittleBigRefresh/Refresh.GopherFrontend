@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Bunkum" Version="4.2.1" />
-      <PackageReference Include="Bunkum.Protocols.Gopher" Version="4.2.0" />
+      <PackageReference Include="Bunkum" Version="4.3.0" />
+      <PackageReference Include="Bunkum.Protocols.Gopher" Version="4.3.0" />
     </ItemGroup>
 
 
