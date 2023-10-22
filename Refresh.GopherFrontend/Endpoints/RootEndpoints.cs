@@ -21,7 +21,7 @@ public class RootEndpoints : EndpointGroup
             new GophermapMessage($"Welcome to the {apiService.Instance.InstanceName} {context.Protocol.Name} Frontend!"),
             new GophermapMessage("    " + apiService.Instance.InstanceDescription),
             new GophermapMessage(""),
-            new GophermapLink("Server Statistics", config, "/statistics"),
+            new GophermapLink("About Server", config, "/statistics"),
             new GophermapLink("Levels", config, "/levels"),
             new GophermapMessage(""),
         };

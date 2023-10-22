@@ -16,7 +16,7 @@ public class RefreshApiService : EndpointService
     {
         this._client = new HttpClient
         {
-            BaseAddress = new Uri(config.RefreshApiUrl)
+            BaseAddress = new Uri(config.RefreshApiUrl),
         };
 
         this.Instance = GetData<RefreshInstance>("instance");

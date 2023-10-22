@@ -8,4 +8,5 @@ public class RefreshStatistics
     public int TotalEvents { get; set; }
     public int CurrentIngamePlayersCount { get; set; }
     public int CurrentRoomCount { get; set; }
+    public RefreshRequestStatistics RequestStatistics { get; set; }
 }
