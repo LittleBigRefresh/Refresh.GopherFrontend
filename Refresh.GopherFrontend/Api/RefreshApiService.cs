@@ -86,6 +86,7 @@ public class RefreshApiService : EndpointService
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
     public ApiList<RefreshLevel> GetLevelListing(string category, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count);
     public RefreshLevel GetLevel(int id) => GetData<RefreshLevel>($"levels/id/{id}");
+    public RefreshUser GetUser(string username) => GetData<RefreshUser>($"users/name/{username}");
 
     [Pure]
     public RefreshActivityPage GetActivityPage(int skip = 0, int count = 20)

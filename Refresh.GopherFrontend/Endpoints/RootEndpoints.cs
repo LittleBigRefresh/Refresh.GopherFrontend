@@ -23,6 +23,7 @@ public class RootEndpoints : EndpointGroup
             new GophermapMessage(""),
             new GophermapLink("About Server", config, "/statistics"),
             new GophermapLink("Levels", config, "/levels"),
+            new GophermapLink("Recent Activity", config, "/activity/1"),
             new GophermapMessage(""),
         };
 
