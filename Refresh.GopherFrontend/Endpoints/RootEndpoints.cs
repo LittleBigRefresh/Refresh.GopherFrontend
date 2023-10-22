@@ -18,7 +18,7 @@ public class RootEndpoints : EndpointGroup
     {
         List<GophermapItem> map = new List<GophermapItem>
         {
-            new GophermapMessage($"Welcome to the {apiService.Instance.InstanceName} Gopher Frontend!"),
+            new GophermapMessage($"Welcome to the {apiService.Instance.InstanceName} {context.Protocol.Name} Frontend!"),
             new GophermapMessage("    " + apiService.Instance.InstanceDescription),
             new GophermapMessage(""),
             new GophermapLink("Server Statistics", config, "/statistics"),
