@@ -100,14 +100,14 @@ public class LevelEndpoints : EndpointGroup
         
         if (level.IconHash != "0" && level.IconHash[0] != 'g')
         {
-            map.Add(new GophermapLink(GophermapItemType.Image, "View Level Icon", config, $"/level/{id}/icon"));
+            map.Add(new GophermapLink(GophermapItemType.Image, "View Level Icon", config, $"/level/{id}/icon.png"));
         }
 
         return map;
     }
 
-    [GopherEndpoint("/level/{id}/icon")]
-    [GeminiEndpoint("/level/{id}/icon", ContentType.Png)]
+    [GopherEndpoint("/level/{id}/icon.png")]
+    [GeminiEndpoint("/level/{id}/icon.png", ContentType.Png)]
     public byte[] GetLevelIcon(RequestContext context, RefreshApiService apiService, int id)
     {
         RefreshLevel level = apiService.GetLevel(id);
