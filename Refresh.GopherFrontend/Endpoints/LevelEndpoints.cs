@@ -60,12 +60,18 @@ public class LevelEndpoints : EndpointGroup
 
         map.Add(new GophermapMessage(""));
         map.Add(new GophermapMessage($"You are on page {page}/{maxPage}"));
-        
+
+        if (page > 1)
+            map.Add(new GophermapLink("First Page", config, $"/levels/{route}/1"));
+
         if(page != maxPage)
             map.Add(new GophermapLink("Next Page", config, $"/levels/{route}/{page + 1}"));
         
         if (page > 1)
             map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}/{page - 1}"));
+        
+        if (page < maxPage)
+            map.Add(new GophermapLink("Last Page", config, $"/levels/{route}/{maxPage}"));
 
         return map;
     }
