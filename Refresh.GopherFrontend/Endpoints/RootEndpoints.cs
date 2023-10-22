@@ -24,13 +24,16 @@ public class RootEndpoints : EndpointGroup
             new GophermapMessage(""),
         };
 
-        map.Add(new GophermapMessage("=== ANNOUNCEMENTS ==="));
-        foreach (RefreshAnnouncement announcement in apiService.Instance.Announcements)
+        if (apiService.Instance.Announcements.Any())
         {
-            map.Add(new GophermapMessage($"*** {announcement.Title} ***"));
-            map.Add(new GophermapMessage("    " + announcement.Text));
-        }
+            map.Add(new GophermapMessage("=== ANNOUNCEMENTS ==="));
+            foreach (RefreshAnnouncement announcement in apiService.Instance.Announcements)
+            {
+                map.Add(new GophermapMessage($"*** {announcement.Title} ***"));
+                map.Add(new GophermapMessage("    " + announcement.Text));
+            }
 
+        }
         return map;
     }
 }
