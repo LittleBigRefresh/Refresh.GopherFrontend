@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using Bunkum.Core.Services;
+using JetBrains.Annotations;
 using NotEnoughLogs;
 using Refresh.GopherFrontend.Api.Types;
 using Refresh.GopherFrontend.Configuration;
@@ -85,4 +86,10 @@ public class RefreshApiService : EndpointService
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
     public ApiList<RefreshLevel> GetLevelListing(string category, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count);
     public RefreshLevel GetLevel(int id) => GetData<RefreshLevel>($"levels/id/{id}");
+
+    [Pure]
+    public RefreshActivityPage GetActivityPage(int skip = 0, int count = 20)
+    {
+        return GetData<RefreshActivityPage>($"activity?count={count}&skip={skip}");
+    }
 }
