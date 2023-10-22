@@ -53,11 +53,20 @@ public class RefreshApiService : EndpointService
         return new ApiList<TResult>
         {
             Items = items,
-            ListInfo = listInfo
+            ListInfo = listInfo,
         };
     }
 
-    public RefreshStatistics GetStatistics() => GetData<RefreshStatistics>("statistics");
+    public (RefreshStatistics statistics, long latencyMs) GetStatistics()
+    {
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+        RefreshStatistics statistics = GetData<RefreshStatistics>("statistics");
+        stopwatch.Stop();
+
+        return (statistics, stopwatch.ElapsedMilliseconds);
+    }
+
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
     public ApiList<RefreshLevel> GetLevelListing(string category, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count);
     public RefreshLevel GetLevel(int id) => GetData<RefreshLevel>($"levels/id/{id}");

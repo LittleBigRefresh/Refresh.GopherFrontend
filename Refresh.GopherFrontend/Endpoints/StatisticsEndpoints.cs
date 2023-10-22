@@ -21,7 +21,7 @@ public class StatisticsEndpoints : EndpointGroup
         GopherFrontendConfig frontendConfig,
         BunkumConfig config)
     {
-        RefreshStatistics statistics = apiService.GetStatistics();
+        (RefreshStatistics statistics, long latencyMs) = apiService.GetStatistics();
         RefreshRequestStatistics requests = statistics.RequestStatistics;
         return new List<GophermapItem>
         {
@@ -50,6 +50,7 @@ public class StatisticsEndpoints : EndpointGroup
             new GophermapMessage($"    Protocol in use: {context.Protocol.Name} {context.Protocol.Version}"),
             new GophermapMessage($"    Gopher requests served: {statisticsService.GopherRequestsServed:N0}"),
             new GophermapMessage($"    Gemini requests served: {statisticsService.GeminiRequestsServed:N0}"),
+            new GophermapMessage($"    API Latency: ~{latencyMs}ms"),
         };
     }
 }
