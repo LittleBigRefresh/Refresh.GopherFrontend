@@ -1,6 +1,7 @@
 using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
+using Bunkum.Protocols.Gemini;
 using Bunkum.Protocols.Gopher;
 using Bunkum.Protocols.Gopher.Responses;
 using Bunkum.Protocols.Gopher.Responses.Items;
@@ -12,6 +13,7 @@ namespace Refresh.GopherFrontend.Endpoints;
 public class LevelEndpoints : EndpointGroup
 {
     [GopherEndpoint("/levels")]
+    [GeminiEndpoint("/levels")]
     public List<GophermapItem> GetLevelCategories(RequestContext context, RefreshApiService apiService, BunkumConfig config)
     {
         ApiList<RefreshCategory> categories = apiService.GetLevelCategories();
@@ -34,6 +36,7 @@ public class LevelEndpoints : EndpointGroup
     }
 
     [GopherEndpoint("/levels/{route}/{page}")]
+    [GeminiEndpoint("/levels/{route}/{page}")]
     public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page)
     {
         const int pageSize = 10;
@@ -68,6 +71,7 @@ public class LevelEndpoints : EndpointGroup
     }
 
     [GopherEndpoint("/level/{id}")]
+    [GeminiEndpoint("/level/{id}")]
     public List<GophermapItem> GetLevel(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
     {
         RefreshLevel level = apiService.GetLevel(id);

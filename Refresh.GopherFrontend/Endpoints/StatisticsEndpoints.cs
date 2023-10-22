@@ -1,6 +1,7 @@
 using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
+using Bunkum.Protocols.Gemini;
 using Bunkum.Protocols.Gopher;
 using Bunkum.Protocols.Gopher.Responses;
 using Bunkum.Protocols.Gopher.Responses.Items;
@@ -12,6 +13,7 @@ namespace Refresh.GopherFrontend.Endpoints;
 public class StatisticsEndpoints : EndpointGroup
 {
     [GopherEndpoint("/statistics")]
+    [GeminiEndpoint("/statistics")]
     public List<GophermapItem> GetStatistics(RequestContext context, RefreshApiService apiService, BunkumConfig config)
     {
         RefreshStatistics statistics = apiService.GetStatistics();
