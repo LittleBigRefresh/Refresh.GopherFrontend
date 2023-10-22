@@ -1,6 +1,7 @@
 using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
+using Bunkum.Listener.Protocol;
 using Bunkum.Protocols.Gemini;
 using Bunkum.Protocols.Gopher;
 using Bunkum.Protocols.Gopher.Responses;
@@ -96,7 +97,20 @@ public class LevelEndpoints : EndpointGroup
         {
             map.Add(new GophermapMessage($"Published at {level.PublishDate}"));
         }
+        
+        if (level.IconHash != "0" && level.IconHash[0] != 'g')
+        {
+            map.Add(new GophermapLink(GophermapItemType.Image, "View Level Icon", config, $"/level/{id}/icon"));
+        }
 
         return map;
+    }
+
+    [GopherEndpoint("/level/{id}/icon")]
+    [GeminiEndpoint("/level/{id}/icon", ContentType.Png)]
+    public byte[] GetLevelIcon(RequestContext context, RefreshApiService apiService, int id)
+    {
+        RefreshLevel level = apiService.GetLevel(id);
+        return apiService.GetImageData(level.IconHash);
     }
 }

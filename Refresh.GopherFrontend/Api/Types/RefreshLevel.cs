@@ -9,6 +9,7 @@ public class RefreshLevel
     
     public string Title { get; set; }
     public string Description { get; set; }
+    public string IconHash { get; set; }
     
     public byte GameVersion { get; set; }
     

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Json;
 using Bunkum.Core.Services;
 using NotEnoughLogs;
@@ -44,6 +45,20 @@ public class RefreshApiService : EndpointService
         listInfo = result.ListInfo;
         return result.Data;
     }
+
+    private byte[] GetBinaryData(string endpoint)
+    {
+        HttpResponseMessage response = _client.GetAsync(endpoint).Result;
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            ApiError apiResponse = response.Content.ReadFromJsonAsync<ApiError>().Result!;
+            throw new ApiErrorException(apiResponse);
+        } 
+        
+        return response.Content.ReadAsByteArrayAsync().Result;
+    }
+
+    public byte[] GetImageData(string hash) => GetBinaryData($"assets/{hash}/image");
 
     private ApiList<TResult> GetList<TResult>(string endpoint, int skip = 0, int count = 20)
     {
