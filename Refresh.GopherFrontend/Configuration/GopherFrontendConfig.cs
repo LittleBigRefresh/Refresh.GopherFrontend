@@ -12,5 +12,5 @@ public class GopherFrontendConfig : Config
         
     }
 
-    public string RefreshApiUrl { get; set; } = "https://littlebigrefresh.com/api/v3/";
+    public string RefreshApiUrl { get; set; } = "https://lbp.littlebigrefresh.com/api/v3/";
 }
