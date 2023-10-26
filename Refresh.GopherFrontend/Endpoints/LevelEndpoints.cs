@@ -14,6 +14,7 @@ namespace Refresh.GopherFrontend.Endpoints;
 
 public class LevelEndpoints : EndpointGroup
 {
+    // Use a separate lock for the categories list, this is due to _Categories sometimes being null, so we need something else to lock instead
     private static object _CategoriesLock = new();
     private static ApiList<RefreshCategory>? _Categories;
     
