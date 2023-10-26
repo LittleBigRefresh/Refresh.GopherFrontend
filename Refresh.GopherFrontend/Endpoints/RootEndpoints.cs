@@ -19,16 +19,11 @@ public class RootEndpoints : EndpointGroup
     {
         List<GophermapItem> map = new();
 
+        map.AddHeading(context, $"Welcome to {apiService.Instance.InstanceName}!", 1);
         if (context.IsGemini())
-        {
-            map.Add(new GophermapMessage($"# Welcome to {apiService.Instance.InstanceName}!"));
             map.Add(new GophermapMessage($"### {apiService.Instance.InstanceDescription}"));
-        }
         else
-        {
-            map.Add(new GophermapMessage($"Welcome to {apiService.Instance.InstanceName}!"));
             map.Add(new GophermapMessage("    " + apiService.Instance.InstanceDescription));
-        }
 
         map.AddRange(new GophermapItem[]
         {
