@@ -1,3 +1,4 @@
+using System.Text;
 using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
@@ -70,6 +71,7 @@ public class LevelEndpoints : EndpointGroup
             //If found, use the category name
             if (category != null) categoryName = category.Name;
         }
+        //If we could not find the proper category name, default to the route
         categoryName ??= $"{route} Levels";
         
         ApiList<RefreshLevel> levels = apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize);
@@ -115,15 +117,12 @@ public class LevelEndpoints : EndpointGroup
     }
 
     [GopherEndpoint("/level/{id}")]
-    [GeminiEndpoint("/level/{id}")]
-    public List<GophermapItem> GetLevel(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
+    public List<GophermapItem> GetLevelGopher(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
     {
         RefreshLevel level = apiService.GetLevel(id);
-        List<GophermapItem> map = new()
-        {
-            new GophermapMessage(level.Title.Length > 0 ? level.Title : "Unnamed Level"),
-            new GophermapMessage(level.Description.Length > 0 ? level.Description : "No description was provided for this level."),
-        };
+        List<GophermapItem> map = new();
+        map.Add(new GophermapMessage(level.Title.Length > 0 ? level.Title : "Unnamed Level"));
+        map.Add(new GophermapMessage(level.Description.Length > 0 ? level.Description : "No description was provided for this level."));
 
         if (level.Publisher != null)
         {
@@ -141,6 +140,32 @@ public class LevelEndpoints : EndpointGroup
         }
 
         return map;
+    }
+
+    [GeminiEndpoint("/level/{id}")]
+    public string GetLevelGemini(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
+    {
+        RefreshLevel level = apiService.GetLevel(id);
+        StringBuilder builder = new(1024);
+        builder.AppendLine($"# {(level.Title.Length > 0 ? level.Title : "Unnamed Level")}");
+        builder.AppendLine(level.Description.Length > 0 ? level.Description : "No description was provided for this level.");
+
+        if (level.Publisher != null)
+        {
+            builder.AppendLine($"### Published at {level.PublishDate} by {level.Publisher.Username}");
+            builder.AppendLine($"=> /user/{level.Publisher.Username} View Publisher's Profile");
+        }
+        else
+        {
+            builder.AppendLine($"### Published at {level.PublishDate}");
+        }
+
+        if (level.IconHash != "0" && level.IconHash[0] != 'g')
+        {
+            builder.AppendLine($"=> /level/{id}/icon.png View Level Icon");
+        }
+
+        return builder.ToString();
     }
 
     [GopherEndpoint("/level/{id}/icon.png")]
