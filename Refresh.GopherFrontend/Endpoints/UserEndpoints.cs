@@ -29,6 +29,8 @@ public class UserEndpoints : EndpointGroup
         map.AddHeading(context, user.Description, 2);
         map.AddHeading(context, $"Joined on {user.JoinDate}", 3);
 
+        map.Add(new GophermapLink("View Uploaded Levels", config, $"/levels/byUser/{user.Username}/1"));
+        
         if (user.IconHash != "0" && user.IconHash[0] != 'g')
         {
             map.Add(new GophermapLink(GophermapItemType.Image, "View User's Avatar", config, $"/user/{username}/avatar.png"));

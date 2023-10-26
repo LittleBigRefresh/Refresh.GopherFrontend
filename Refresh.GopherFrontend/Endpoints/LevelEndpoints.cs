@@ -50,7 +50,9 @@ public class LevelEndpoints : EndpointGroup
 
     [GopherEndpoint("/levels/{route}/{page}")]
     [GeminiEndpoint("/levels/{route}/{page}")]
-    public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page)
+    [GopherEndpoint("/levels/{route}/{user}/{page}")]
+    [GeminiEndpoint("/levels/{route}/{user}/{page}")]
+    public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page, string? user)
     {
         const int pageSize = 10;
 
@@ -73,8 +75,17 @@ public class LevelEndpoints : EndpointGroup
         }
         //If we could not find the proper category name, default to the route
         categoryName ??= $"{route} Levels";
+
+        if (user != null && route == "byUser")
+        {
+            categoryName = $"{user}'s Levels";
+            categoryDescription = $"Levels {user} has shared with the community!";
+        }
         
-        ApiList<RefreshLevel> levels = apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize);
+        ApiList<RefreshLevel> levels;
+        levels = user == null 
+            ? apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize) 
+            : apiService.GetLevelListingByUser(route, user, (page - 1) * pageSize, pageSize);
         
         int maxPage = levels.ListInfo.TotalItems / pageSize + 1;
         
@@ -94,17 +105,19 @@ public class LevelEndpoints : EndpointGroup
         map.Add(new GophermapMessage(""));
         map.AddHeading(context, $"You are on page {page}/{maxPage}", 3);
 
+        string userParam = user == null ? "" : $"/{user}";
+        
         if (page > 1)
-            map.Add(new GophermapLink("First Page", config, $"/levels/{route}/1"));
+            map.Add(new GophermapLink("First Page", config, $"/levels/{route}{userParam}/1"));
 
         if(page != maxPage)
-            map.Add(new GophermapLink("Next Page", config, $"/levels/{route}/{page + 1}"));
+            map.Add(new GophermapLink("Next Page", config, $"/levels/{route}{userParam}/{page + 1}"));
         
         if (page > 1)
-            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}/{page - 1}"));
+            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}{userParam}/{page - 1}"));
         
         if (page < maxPage)
-            map.Add(new GophermapLink("Last Page", config, $"/levels/{route}/{maxPage}"));
+            map.Add(new GophermapLink("Last Page", config, $"/levels/{route}{userParam}/{maxPage}"));
 
         return map;
     }
