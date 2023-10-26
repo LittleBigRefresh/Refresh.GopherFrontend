@@ -2,6 +2,7 @@ using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
 using Bunkum.Protocols.Gemini;
+using Bunkum.Protocols.Gemini.Responses;
 using Bunkum.Protocols.Gopher;
 using Bunkum.Protocols.Gopher.Responses;
 using Bunkum.Protocols.Gopher.Responses.Items;
@@ -14,8 +15,7 @@ namespace Refresh.GopherFrontend.Endpoints;
 public class StatisticsEndpoints : EndpointGroup
 {
     [GopherEndpoint("/statistics")]
-    [GeminiEndpoint("/statistics")]
-    public List<GophermapItem> GetStatistics(RequestContext context,
+    public List<GophermapItem> GetStatisticsGopher(RequestContext context,
         RefreshApiService apiService,
         StatisticsService statisticsService,
         GopherFrontendConfig frontendConfig,
@@ -32,7 +32,7 @@ public class StatisticsEndpoints : EndpointGroup
             new GophermapMessage(""),
             new GophermapMessage("Things!"),
             new GophermapMessage($"    Registered users: {statistics.TotalUsers:N0}"),
-            new GophermapMessage($"    Submitted levels: {statistics.TotalLevels:N0}"),
+            new GophermapLink($"    Submitted levels: {statistics.TotalLevels:N0}", config, "/levels"),
             new GophermapMessage($"    Uploaded photos: {statistics.TotalPhotos:N0}"),
             new GophermapMessage($"    Events occurred: {statistics.TotalEvents:N0}"),
             new GophermapMessage(""),
@@ -52,5 +52,45 @@ public class StatisticsEndpoints : EndpointGroup
             new GophermapMessage($"    Gemini requests served: {statisticsService.GeminiRequestsServed:N0}"),
             new GophermapMessage($"    API Latency: ~{latencyMs}ms"),
         };
+    }
+    
+    [GeminiEndpoint("/statistics", GeminiContentTypes.Gemtext)]
+    public string GetStatisticsGemini(RequestContext context,
+        RefreshApiService apiService,
+        StatisticsService statisticsService,
+        GopherFrontendConfig frontendConfig,
+        BunkumConfig config)
+    {
+        (RefreshStatistics statistics, long latencyMs) = apiService.GetStatistics();
+        RefreshRequestStatistics requests = statistics.RequestStatistics;
+        
+        return $@"# Statistics for {apiService.Instance.InstanceName}
+## Server Information
+Server software: {apiService.Instance.SoftwareName} ({apiService.Instance.SoftwareType})
+Server version: v{apiService.Instance.SoftwareVersion}
+=> {new Uri(frontendConfig.RefreshApiUrl)} API base URL in use: {frontendConfig.RefreshApiUrl}
+
+## Things!
+Registered users: {statistics.TotalUsers:N0}
+=> /levels Submitted levels: {statistics.TotalLevels:N0}
+Uploaded photos: {statistics.TotalPhotos:N0}
+Events occurred: {statistics.TotalEvents:N0}
+
+## Requests ({requests.TotalRequests:N0} in total)
+API Requests: {requests.ApiRequests:N0}
+Game API Requests: {requests.GameRequests}
+Legacy API Requests: {requests.LegacyApiRequests}
+
+## Activity
+People online now: {statistics.CurrentIngamePlayersCount:N0}
+Active rooms: {statistics.CurrentRoomCount:N0}
+
+## Statistics for this proxy
+=> https://github.com/LittleBigRefresh/Refresh.GopherFrontend Source code (GitHub)
+Protocol in use: {context.Protocol.Name} {context.Protocol.Version}
+Gopher requests served: {statisticsService.GopherRequestsServed:N0}
+Gemini requests served: {statisticsService.GeminiRequestsServed:N0}
+API Latency: ~{latencyMs}ms
+";
     }
 }
