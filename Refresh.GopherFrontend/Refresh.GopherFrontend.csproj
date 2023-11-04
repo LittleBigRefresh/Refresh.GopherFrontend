@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Bunkum" Version="4.3.0" />
-      <PackageReference Include="Bunkum.Protocols.Gemini" Version="4.3.0" />
-      <PackageReference Include="Bunkum.Protocols.Gopher" Version="4.3.0" />
-      <PackageReference Include="Bunkum.Serialization.GopherToGemini" Version="4.3.0" />
+      <PackageReference Include="Bunkum" Version="4.3.3" />
+      <PackageReference Include="Bunkum.Protocols.Gemini" Version="4.3.3" />
+      <PackageReference Include="Bunkum.Protocols.Gopher" Version="4.3.3" />
+      <PackageReference Include="Bunkum.Serialization.GopherToGemini" Version="4.3.3" />
     </ItemGroup>
     
 </Project>

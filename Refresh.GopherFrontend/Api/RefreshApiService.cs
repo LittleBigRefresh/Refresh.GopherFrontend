@@ -61,9 +61,9 @@ public class RefreshApiService : EndpointService
 
     public byte[] GetImageData(string hash) => GetBinaryData($"assets/{hash}/image");
 
-    private ApiList<TResult> GetList<TResult>(string endpoint, int skip = 0, int count = 20)
+    private ApiList<TResult> GetList<TResult>(string endpoint, int skip = 0, int count = 20, string extraQuery = "")
     {
-        IEnumerable<TResult> items = GetData<IEnumerable<TResult>>($"{endpoint}?skip={skip}&count={count}", out ApiListInformation? listInfo);
+        IEnumerable<TResult> items = GetData<IEnumerable<TResult>>($"{endpoint}?skip={skip}&count={count}{extraQuery}", out ApiListInformation? listInfo);
         Debug.Assert(listInfo != null, $"List information was not present on endpoint '/{endpoint}'");
 
         return new ApiList<TResult>
@@ -85,6 +85,8 @@ public class RefreshApiService : EndpointService
 
     public ApiList<RefreshCategory> GetLevelCategories() => GetList<RefreshCategory>("levels");
     public ApiList<RefreshLevel> GetLevelListing(string category, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count);
+    public ApiList<RefreshLevel> GetLevelListingByUser(string category, string user, int skip = 0, int count = 20) => GetList<RefreshLevel>($"levels/{category}", skip, count, $"&u={user}");
+    public ApiList<RefreshPhoto> GetPhotos(int skip = 0, int count = 20) => GetList<RefreshPhoto>($"photos", skip, count);
     public RefreshLevel GetLevel(int id) => GetData<RefreshLevel>($"levels/id/{id}");
     public RefreshUser GetUser(string username) => GetData<RefreshUser>($"users/name/{username}");
 

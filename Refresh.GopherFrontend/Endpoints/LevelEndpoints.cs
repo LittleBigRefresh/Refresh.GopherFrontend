@@ -1,3 +1,4 @@
+using System.Text;
 using Bunkum.Core;
 using Bunkum.Core.Configuration;
 using Bunkum.Core.Endpoints;
@@ -8,22 +9,26 @@ using Bunkum.Protocols.Gopher.Responses;
 using Bunkum.Protocols.Gopher.Responses.Items;
 using Refresh.GopherFrontend.Api;
 using Refresh.GopherFrontend.Api.Types;
+using Refresh.GopherFrontend.Extensions;
 
 namespace Refresh.GopherFrontend.Endpoints;
 
 public class LevelEndpoints : EndpointGroup
 {
+    // Use a separate lock for the categories list, this is due to _Categories sometimes being null, so we need something else to lock instead
+    private static object _CategoriesLock = new();
+    private static ApiList<RefreshCategory>? _Categories;
+    
     [GopherEndpoint("/levels")]
     [GeminiEndpoint("/levels")]
     public List<GophermapItem> GetLevelCategories(RequestContext context, RefreshApiService apiService, BunkumConfig config)
     {
         ApiList<RefreshCategory> categories = apiService.GetLevelCategories();
-        List<GophermapItem> map = new()
-        {
-            new GophermapMessage("Level Categories"),
-            new GophermapMessage(""),
-        };
+        List<GophermapItem> map = new();
         
+        map.AddHeading(context, "Level Categories", 1);
+        map.Add(new GophermapMessage(""));
+
         foreach (RefreshCategory category in categories.Items)
         {
             if(category.RequiresUser) continue;
@@ -32,25 +37,63 @@ public class LevelEndpoints : EndpointGroup
             map.Add(new GophermapLink(category.Name, config, $"/levels/{category.ApiRoute}/1"));
             map.Add(new GophermapMessage(category.Description));
         }
+        
+        //Lock the global categories cache
+        lock (_CategoriesLock)
+        {
+            //Set it to the new value
+            _Categories = categories;
+        }
 
         return map;
     }
 
     [GopherEndpoint("/levels/{route}/{page}")]
     [GeminiEndpoint("/levels/{route}/{page}")]
-    public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page)
+    [GopherEndpoint("/levels/{route}/{user}/{page}")]
+    [GeminiEndpoint("/levels/{route}/{user}/{page}")]
+    public List<GophermapItem> GetLevelListing(RequestContext context, RefreshApiService apiService, BunkumConfig config, string route, int page, string? user)
     {
         const int pageSize = 10;
+
+        string? categoryName = null;
+        string? categoryDescription = null;
+        //Lock the global categories cache
+        lock (_CategoriesLock)
+        {
+            //Ensure the categories cache is filled
+            _Categories ??= apiService.GetLevelCategories();
+
+            //Try to get the category name from the cache
+            RefreshCategory? category = _Categories.Items.FirstOrDefault(c => c.ApiRoute == route);
+            //If found, use the category name
+            if (category != null)
+            {
+                categoryName = category.Name;
+                categoryDescription = category.Description;
+            }
+        }
+        //If we could not find the proper category name, default to the route
+        categoryName ??= $"{route} Levels";
+
+        if (user != null && route == "byUser")
+        {
+            categoryName = $"{user}'s Levels";
+            categoryDescription = $"Levels {user} has shared with the community!";
+        }
         
-        ApiList<RefreshLevel> levels = apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize);
+        ApiList<RefreshLevel> levels;
+        levels = user == null 
+            ? apiService.GetLevelListing(route, (page - 1) * pageSize, pageSize) 
+            : apiService.GetLevelListingByUser(route, user, (page - 1) * pageSize, pageSize);
         
         int maxPage = levels.ListInfo.TotalItems / pageSize + 1;
         
-        List<GophermapItem> map = new()
-        {
-            new GophermapMessage($"{route} Levels"),
-            new GophermapMessage(""),
-        };
+        List<GophermapItem> map = new();
+        map.AddHeading(context, categoryName, 1);
+        if(categoryDescription != null) 
+            map.AddHeading(context, categoryDescription, 2);
+        map.Add(new GophermapMessage(""));
 
         foreach (RefreshLevel level in levels.Items)
         {
@@ -60,33 +103,32 @@ public class LevelEndpoints : EndpointGroup
         }
 
         map.Add(new GophermapMessage(""));
-        map.Add(new GophermapMessage($"You are on page {page}/{maxPage}"));
+        map.AddHeading(context, $"You are on page {page}/{maxPage}", 3);
 
+        string userParam = user == null ? "" : $"/{user}";
+        
         if (page > 1)
-            map.Add(new GophermapLink("First Page", config, $"/levels/{route}/1"));
+            map.Add(new GophermapLink("First Page", config, $"/levels/{route}{userParam}/1"));
 
         if(page != maxPage)
-            map.Add(new GophermapLink("Next Page", config, $"/levels/{route}/{page + 1}"));
+            map.Add(new GophermapLink("Next Page", config, $"/levels/{route}{userParam}/{page + 1}"));
         
         if (page > 1)
-            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}/{page - 1}"));
+            map.Add(new GophermapLink("Previous Page", config, $"/levels/{route}{userParam}/{page - 1}"));
         
         if (page < maxPage)
-            map.Add(new GophermapLink("Last Page", config, $"/levels/{route}/{maxPage}"));
+            map.Add(new GophermapLink("Last Page", config, $"/levels/{route}{userParam}/{maxPage}"));
 
         return map;
     }
 
     [GopherEndpoint("/level/{id}")]
-    [GeminiEndpoint("/level/{id}")]
-    public List<GophermapItem> GetLevel(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
+    public List<GophermapItem> GetLevelGopher(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
     {
         RefreshLevel level = apiService.GetLevel(id);
-        List<GophermapItem> map = new()
-        {
-            new GophermapMessage(level.Title.Length > 0 ? level.Title : "Unnamed Level"),
-            new GophermapMessage(level.Description.Length > 0 ? level.Description : "No description was provided for this level."),
-        };
+        List<GophermapItem> map = new();
+        map.Add(new GophermapMessage(level.Title.Length > 0 ? level.Title : "Unnamed Level"));
+        map.Add(new GophermapMessage(level.Description.Length > 0 ? level.Description : "No description was provided for this level."));
 
         if (level.Publisher != null)
         {
@@ -104,6 +146,32 @@ public class LevelEndpoints : EndpointGroup
         }
 
         return map;
+    }
+
+    [GeminiEndpoint("/level/{id}")]
+    public string GetLevelGemini(RequestContext context, RefreshApiService apiService, BunkumConfig config, int id)
+    {
+        RefreshLevel level = apiService.GetLevel(id);
+        StringBuilder builder = new(1024);
+        builder.AppendLine($"# {(level.Title.Length > 0 ? level.Title : "Unnamed Level")}");
+        builder.AppendLine(level.Description.Length > 0 ? level.Description : "No description was provided for this level.");
+
+        if (level.Publisher != null)
+        {
+            builder.AppendLine($"### Published at {level.PublishDate} by {level.Publisher.Username}");
+            builder.AppendLine($"=> /user/{level.Publisher.Username} View Publisher's Profile");
+        }
+        else
+        {
+            builder.AppendLine($"### Published at {level.PublishDate}");
+        }
+
+        if (level.IconHash != "0" && level.IconHash[0] != 'g')
+        {
+            builder.AppendLine($"=> /level/{id}/icon.png View Level Icon");
+        }
+
+        return builder.ToString();
     }
 
     [GopherEndpoint("/level/{id}/icon.png")]

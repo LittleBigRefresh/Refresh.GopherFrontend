@@ -7,6 +7,7 @@ using Bunkum.Protocols.Gopher.Responses;
 using Bunkum.Protocols.Gopher.Responses.Items;
 using Refresh.GopherFrontend.Api;
 using Refresh.GopherFrontend.Api.Types;
+using Refresh.GopherFrontend.Extensions;
 
 namespace Refresh.GopherFrontend.Endpoints;
 
@@ -18,11 +19,9 @@ public class ActivityEndpoints : EndpointGroup
     {
         const int pageSize = 20;
         
-        List<GophermapItem> map = new()
-        {
-            new GophermapMessage("Recent Activity"),
-            new GophermapMessage(""),
-        };
+        List<GophermapItem> map = new();
+        map.AddHeading(context, "Recent Activity", 1);
+        map.Add(new GophermapMessage(""));
 
         RefreshActivityPage activityPage = apiService.GetActivityPage((page - 1) * pageSize, pageSize);
         
@@ -55,15 +54,18 @@ public class ActivityEndpoints : EndpointGroup
             {
                 case RefreshEventDataType.User:
                     RefreshUser referencedUser = activityPage.Users.First(u => u.UserId == activityEvent.StoredObjectId);
-                    map.Add(new GophermapMessage($"{user.Username} {verb} {referencedUser.Username}"));
+                    map.AddHeading(context, $"{user.Username} {verb} {referencedUser.Username}", 2);
                     map.Add(new GophermapLink($"View {referencedUser.Username}'s profile", config, $"/user/{referencedUser.Username}"));
                     break;
                 case RefreshEventDataType.Level:
                     RefreshLevel level = activityPage.Levels.First(l => l.LevelId == activityEvent.StoredSequentialId);
-                    map.Add(new GophermapMessage($"{user.Username} {verb} {level.Title}"));
+                    map.AddHeading(context, $"{user.Username} {verb} {level.Title}", 2);
                     map.Add(new GophermapLink($"View {level.Title}", config, $"/level/{level.LevelId}"));
                     break;
                 case RefreshEventDataType.Score:
+                    RefreshScore referencedScore = activityPage.Scores.First(u => u.ScoreId == activityEvent.StoredObjectId);
+                    map.AddHeading(context, $"{user.Username} got a score of {referencedScore.Score} on {referencedScore.Level.Title}", 2);
+                    map.Add(new GophermapLink($"View {referencedScore.Level.Title}", config, $"/level/{referencedScore.Level.LevelId}"));
                     break;
                 case RefreshEventDataType.RateLevelRelation:
                     break;
@@ -76,7 +78,7 @@ public class ActivityEndpoints : EndpointGroup
         }
         
         map.Add(new GophermapMessage(""));
-        map.Add(new GophermapMessage($"You are on page {page}/{maxPage}"));
+        map.AddHeading(context, $"You are on page {page}/{maxPage}", 3);
             
         if (page > 1)
             map.Add(new GophermapLink("First Page", config, $"/activity/1"));
