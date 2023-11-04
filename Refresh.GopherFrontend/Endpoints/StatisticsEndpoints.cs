@@ -33,7 +33,7 @@ public class StatisticsEndpoints : EndpointGroup
             new GophermapMessage("Things!"),
             new GophermapMessage($"    Registered users: {statistics.TotalUsers:N0}"),
             new GophermapLink($"    Submitted levels: {statistics.TotalLevels:N0}", config, "/levels"),
-            new GophermapMessage($"    Uploaded photos: {statistics.TotalPhotos:N0}"),
+            new GophermapLink($"    Uploaded photos: {statistics.TotalPhotos:N0}", config, "/photos/1"),
             new GophermapMessage($"    Events occurred: {statistics.TotalEvents:N0}"),
             new GophermapMessage(""),
             new GophermapMessage($"Served requests ({requests.TotalRequests:N0} in total)"),
@@ -73,7 +73,7 @@ Server version: v{apiService.Instance.SoftwareVersion}
 ## Things!
 Registered users: {statistics.TotalUsers:N0}
 => /levels Submitted levels: {statistics.TotalLevels:N0}
-Uploaded photos: {statistics.TotalPhotos:N0}
+=> /photos/1 Uploaded photos: {statistics.TotalPhotos:N0}
 Events occurred: {statistics.TotalEvents:N0}
 
 ## Requests ({requests.TotalRequests:N0} in total)
